@@ -30,8 +30,6 @@ void setup()
         log_w("Nextion display initialization failed");
     }
 
-    delay(500);
-
     pRadio_Title.setText("");
     pRadio_STitle.setText("");
     pRadio_Artist.setText("");
@@ -163,10 +161,10 @@ void setup()
     pStartup_Status4.setText("Starting radio");
     mp3Start();
 
+    pageClock.show();
+
     // Connect to the station to start the data stream
     playRadio(ClockSettings.bRadioOn, false);
-
-    pageClock.show();
 
     pStartup_Status1.setText("");
     pStartup_Status2.setText("");

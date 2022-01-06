@@ -254,12 +254,9 @@ log_w("pSetup_Metadata_PushCallback");
 
   ClockSettings.bMetadata = number;
   writeSettings();
+
   if (ClockSettings.bRadioOn)
-  {
-    playRadio(false, false);
-    delay(1000);
-    playRadio(true, false);
-  }
+    showStreamTitle();
 }
 
 

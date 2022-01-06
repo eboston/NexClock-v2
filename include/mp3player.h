@@ -6,6 +6,7 @@ void mp3Start();
 void mp3loop();
 bool connectToStation(uint8_t stationNumber);
 void playRadio(bool state, bool saveChange = true);
+void showStreamTitle();
 
 //extern String            host ;
 

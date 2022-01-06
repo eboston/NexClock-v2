@@ -5,21 +5,21 @@
 
 #define nexSerial   Serial2
 
-#define NEX_RET_CMD_FINISHED                (0x01)
-#define NEX_RET_EVENT_LAUNCHED              (0x88)
-#define NEX_RET_EVENT_UPGRADED              (0x89)
-#define NEX_RET_EVENT_TOUCH_HEAD            (0x65)     
-#define NEX_RET_EVENT_POSITION_HEAD         (0x67)
-#define NEX_RET_EVENT_SLEEP_POSITION_HEAD   (0x68)
-#define NEX_RET_CURRENT_PAGE_ID_HEAD        (0x66)
-#define NEX_RET_STRING_HEAD                 (0x70)
-#define NEX_RET_NUMBER_HEAD                 (0x71)
 #define NEX_RET_INVALID_CMD                 (0x00)
-#define NEX_RET_INVALID_COMPONENT_ID        (0x02)
-#define NEX_RET_INVALID_PAGE_ID             (0x03)
+#define NEX_RET_CMD_FINISHED                (0x01)
 #define NEX_RET_INVALID_PICTURE_ID          (0x04)
 #define NEX_RET_INVALID_FONT_ID             (0x05)
 #define NEX_RET_INVALID_BAUD                (0x11)
+#define NEX_RET_EVENT_TOUCH_HEAD            (0x65)     
+#define NEX_RET_CURRENT_PAGE_ID_HEAD        (0x66)
+#define NEX_RET_EVENT_POSITION_HEAD         (0x67)
+#define NEX_RET_EVENT_SLEEP_POSITION_HEAD   (0x68)
+#define NEX_RET_STRING_HEAD                 (0x70)
+#define NEX_RET_NUMBER_HEAD                 (0x71)
+#define NEX_RET_EVENT_LAUNCHED              (0x88)
+#define NEX_RET_EVENT_UPGRADED              (0x89)
+#define NEX_RET_INVALID_COMPONENT_ID        (0x02)
+#define NEX_RET_INVALID_PAGE_ID             (0x03)
 #define NEX_RET_INVALID_VARIABLE            (0x1A)
 #define NEX_RET_INVALID_OPERATION           (0x1B)
 
@@ -50,6 +50,7 @@ NexObject pClock_TMin   = NexObject(&pageClock,  5, "TMin");
 NexObject pClock_Min    = NexObject(&pageClock,  6, "Min");
 NexObject pClock_Colon  = NexObject(&pageClock,  7, "Colon");
 NexObject pClock_Date   = NexObject(&pageClock,  8, "Date");
+NexObject pClock_bSetup = NexObject(&pageClock, 11, "bSetup");
 NexObject pClock_bRadio = NexObject(&pageClock, 13, "bRadio");
 NexObject pClock_Title  = NexObject(&pageClock, 15, "Title");
 
@@ -101,6 +102,7 @@ NexObject *nex_listen_list[] =
   NULL
 };
 
+uint8_t currentPage = 0xFF;
 
 void NexClockLoopTask(void *parameter)
 {
@@ -118,7 +120,7 @@ void NexClockLoopTask(void *parameter)
 
             switch (c)
             {
-            case 0x65:  // Button event
+            case NEX_RET_EVENT_TOUCH_HEAD:  // Button event
                 if (nexSerial.available() >= 6)
                 {
                     __buffer[0] = c;  
@@ -129,7 +131,7 @@ void NexClockLoopTask(void *parameter)
                         NexObject::iterate(nex_listen_list, __buffer[1], __buffer[2], (int32_t)__buffer[3]);
                 }
 
-            case 0x66:  // sendme - current page being displayed
+            case NEX_RET_CURRENT_PAGE_ID_HEAD:  // sendme - current page being displayed
                 if (nexSerial.available() >= 4)
                 {
                     __buffer[0] = c;
@@ -138,8 +140,12 @@ void NexClockLoopTask(void *parameter)
 
                     if (0xFF == __buffer[2] && 0xFF == __buffer[3] && 0xFF == __buffer[4])
                     {
-                        uint8_t currentPage = __buffer[1];
-                        log_w("Current page is %d", currentPage);
+                        uint8_t newPage = __buffer[1];
+                        if (currentPage != newPage)
+                        {
+                            currentPage = newPage;
+                            log_w("Current page is %d", currentPage);
+                        }
                     }
                 }
             }
@@ -368,7 +374,10 @@ bool NexClockInit(int8_t rxPin, int8_t txPin)
       sendCommand("page 0");
       ret2 = recvRetCommandFinished(100);
 
-      return (ret1 && ret2);
+      sendCommand("rest");
+      bool ret3 = recvRetCommandFinished(100);
+
+      return (ret1 && ret2 && ret3);
     }
 
     return 0;

@@ -100,15 +100,23 @@ volatile datamode_t datamode;                            // State of datastream
 //**************************************************************************************************
 void showStreamTitle()
 {
-    log_w("\nTitle='%s'\nArtist='%s'", streamTitle.c_str(), streamArtist.c_str());
+    log_w("\nTitle='%s'\nArtist='%s'  (%d)", streamTitle.c_str(), streamArtist.c_str(), ClockSettings.bMetadata);
 
-    pRadio_STitle.setText(streamTitle.c_str());
-    pRadio_Artist.setText("%s", streamArtist.c_str());
-
-    if (streamTitle.length() > 0 && streamArtist.length() > 0)
+    if ((streamTitle.length() > 0 || streamArtist.length() > 0) && 
+        (ClockSettings.bMetadata && radioStations[ClockSettings.lastRadioStation].useMetaData))
+    {
         pClock_Title.setText("%s / %s", streamTitle.c_str(), streamArtist.c_str());
+
+        pRadio_STitle.setText(streamTitle.c_str());
+        pRadio_Artist.setText("%s", streamArtist.c_str());
+    }
     else
+    {
         pClock_Title.setText("");
+        
+        pRadio_STitle.setText("");
+        pRadio_Title.setText("");
+    }
 }
 
 
@@ -541,13 +549,6 @@ bool connectToStation(uint8_t stationNumber)
         return false ;
     }
 
-/*
-    log_w("Wait for client to connect");
-    while (!mp3client.available())
-        delay(100);
-    log_w("Client connected");
-*/
-
     log_w ( "Connected to server" ) ;
     pRadio_StationName.setText(radioStations[9].friendlyName);
 
@@ -567,8 +568,8 @@ bool connectToStation(uint8_t stationNumber)
     // Send a request to the server to start the data stream
     char getReq[128];
     snprintf(getReq, sizeof(getReq),
-        "GET %s HTTP/1.0\r\nHost: %s\r\nIcy-MetaData: %d\r\nConnection: close\r\n\r\n",
-        extension.c_str(), hostwoext.c_str(), ClockSettings.bMetadata ? radioStations[stationNumber].useMetaData : false);
+        "GET %s HTTP/1.0\r\nHost: %s\r\nIcy-MetaData: 1\r\nConnection: close\r\n\r\n",
+        extension.c_str(), hostwoext.c_str());
 
     mp3client.print(getReq) ;                            // Send get request
     vTaskDelay ( 1000 / portTICK_PERIOD_MS ) ;           // Give some time to react
@@ -854,9 +855,6 @@ void playRadio(bool state, bool saveChange)
 		pRadio_Play.setText(PAUSE);
 		pRadio_Play.Set_font_color_pco(63488);
 
-        pRadio_StaDn.Set_background_color_bco(50712);
-        pRadio_StaUp.Set_background_color_bco(50712);
-
 		pClock_bRadio.Set_background_color_bco(2016);
 		pClock_bRadio.Set_font_color_pco(0);
 
@@ -882,9 +880,6 @@ void playRadio(bool state, bool saveChange)
         pRadio_QUsage.setText("");
         streamTitle = "";
         streamArtist = "";
-
-        pRadio_StaDn.Set_background_color_bco(33808);
-        pRadio_StaUp.Set_background_color_bco(33808);
 
         pClock_Title.setText("");
 		pClock_bRadio.Set_background_color_bco(50712);

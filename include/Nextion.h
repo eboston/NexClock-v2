@@ -8,6 +8,8 @@ bool NexClockInit(int8_t rxPin = -1, int8_t txPin = -1);
 uint16_t recvRetString(char *buffer, uint16_t len, uint32_t timeout = 200);
 bool recvRetNumber(uint32_t *number, uint32_t timeout = 100);
 
+extern uint8_t currentPage;
+
 extern TaskHandle_t NexClockLoopTaskHandle;
 
 
@@ -138,6 +140,7 @@ extern NexObject    pClock_Min;
 extern NexObject    pClock_Date;
 extern NexObject    pClock_Title;
 extern NexObject    pClock_bRadio;
+extern NexObject    pClock_bSetup;
 
 extern NexObject    pSetup_qFlashColon;
 extern NexObject    pSetup_q24Hour;
