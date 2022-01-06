@@ -100,20 +100,41 @@ volatile datamode_t datamode;                            // State of datastream
 //**************************************************************************************************
 void showStreamTitle()
 {
-    log_w("\nTitle='%s'\nArtist='%s'  (%d)", streamTitle.c_str(), streamArtist.c_str(), ClockSettings.bMetadata);
+    log_w("\nTitle='%s'\nArtist='%s'", streamTitle.c_str(), streamArtist.c_str());
 
     if ((streamTitle.length() > 0 || streamArtist.length() > 0) && 
         (ClockSettings.bMetadata && radioStations[ClockSettings.lastRadioStation].useMetaData))
     {
         pClock_Title.setText("%s %c %s", streamTitle.c_str(), streamArtist.length() ? '/' : ' ',  streamArtist.c_str());
 
+        pRadio_Title.setText(streamTitle.c_str());
         pRadio_STitle.setText(streamTitle.c_str());
         pRadio_Artist.setText("%s", streamArtist.c_str());
+
+log_w("currentPage=%d", currentPage);
+log_w("pageRadio.getObjPid()=%d", pageRadio.getObjPid());
+
+        if (currentPage == pageRadio.getObjPid())
+        {
+            if (streamTitle.length() < 30)
+            {
+log_w("show static title");
+                sendCommand("vis gTitle,0");
+                sendCommand("vis tTitle,1");
+            }
+            else
+            {
+log_w("show scrolling title");
+                sendCommand("vis gTitle,1");
+                sendCommand("vis tTitle,0");
+            }
+        }
     }
     else
     {
         pClock_Title.setText("");
 
+        pRadio_Title.setText("");
         pRadio_STitle.setText("");
         pRadio_Title.setText("");
     }

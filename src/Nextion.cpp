@@ -28,11 +28,11 @@
 
 
 NexPage pageStartup = NexPage(0, 0, "Startup");
-NexPage pageClock   = NexPage(1, 0, "Clock");
-NexPage pageSetup   = NexPage(2, 0, "Setup");
-NexPage pageAlarm   = NexPage(3, 0, "Alarm");
-NexPage pageUpload  = NexPage(4, 0, "Upload");
-NexPage pageRadio   = NexPage(5, 0, "Radio");
+NexPage pageClock   = NexPage(3, 0, "Clock");
+NexPage pageSetup   = NexPage(4, 0, "Setup");
+NexPage pageAlarm   = NexPage(5, 0, "Alarm");
+NexPage pageUpload  = NexPage(6, 0, "Upload");
+NexPage pageRadio   = NexPage(7, 0, "Radio");
 
 // Page 0 - Startup
 NexObject pStartup_Status1 = NexObject(&pageStartup, 1, "Status1");
@@ -67,22 +67,19 @@ NexObject pUpload_Progress = NexObject(&pageUpload, 2, "j0");
 
 
 // Page 5 - Radio
-NexObject pRadio_Artist      = NexObject(&pageRadio,  6, "t1");
-NexObject pRadio_StationName = NexObject(&pageRadio,  7, "t2");
-NexObject pRadio_QUsage      = NexObject(&pageRadio,  9, "t3");
-NexObject pRadio_Time        = NexObject(&pageRadio, 16, "t4");
-NexObject pRadio_VolDisplay  = NexObject(&pageRadio, 10, "n0");
-NexObject pRadio_STitle      = NexObject(&pageRadio, 17, "g0");
-NexObject pRadio_Title       = NexObject(&pageRadio, 18, "t0");
+NexObject pRadio_Artist      = NexObject(&pageRadio,  6, "tArtist");
+NexObject pRadio_StationName = NexObject(&pageRadio,  7, "tStation");
+NexObject pRadio_Play        = NexObject(&pageRadio,  8, "bPlay");
+NexObject pRadio_QUsage      = NexObject(&pageRadio,  9, "tQUsage");
+NexObject pRadio_VolDisplay  = NexObject(&pageRadio, 10, "nVolume");
+NexObject pRadio_Time        = NexObject(&pageRadio, 14, "tTime");
+NexObject pRadio_STitle      = NexObject(&pageRadio, 15, "gTitle");
+NexObject pRadio_Title       = NexObject(&pageRadio, 16, "tTitle");
 
-NexObject pRadio_VolDn = NexObject(&pageRadio, 1, "b0");
-NexObject pRadio_VolUp = NexObject(&pageRadio, 2, "b1");
-NexObject pRadio_StaDn = NexObject(&pageRadio, 3, "b2");
-NexObject pRadio_StaUp = NexObject(&pageRadio, 4, "b3");
-NexObject pRadio_Play  = NexObject(&pageRadio, 8, "b5");
-
-NexObject pRadio_state  = NexObject(&pageRadio, 11, "state");
-NexObject pRadio_vTitle = NexObject(&pageRadio, 18, "Title");
+NexObject pRadio_VolDn = NexObject(&pageRadio, 1, "bVolDn");
+NexObject pRadio_VolUp = NexObject(&pageRadio, 2, "bVolUp");
+NexObject pRadio_StaDn = NexObject(&pageRadio, 3, "bStaDn");
+NexObject pRadio_StaUp = NexObject(&pageRadio, 4, "bStaUp");
 
 TaskHandle_t NexClockLoopTaskHandle;
 
@@ -145,6 +142,9 @@ void NexClockLoopTask(void *parameter)
                         {
                             currentPage = newPage;
                             log_w("Current page is %d", currentPage);
+
+                            if (currentPage == pageRadio.getObjPid())
+                                showStreamTitle();
                         }
                     }
                 }
