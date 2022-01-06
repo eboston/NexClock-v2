@@ -87,6 +87,8 @@ void setup()
             StopLITTLEFS();
         }
 
+        vTaskSuspend(xplaytask);
+
         pageUpload.show();
         pUpload_Message.setText("Start updating %s", type.c_str());
         pUpload_Status.setText("");

@@ -105,7 +105,7 @@ void showStreamTitle()
     if ((streamTitle.length() > 0 || streamArtist.length() > 0) && 
         (ClockSettings.bMetadata && radioStations[ClockSettings.lastRadioStation].useMetaData))
     {
-        pClock_Title.setText("%s / %s", streamTitle.c_str(), streamArtist.c_str());
+        pClock_Title.setText("%s %c %s", streamTitle.c_str(), streamArtist.length() ? '/' : ' ',  streamArtist.c_str());
 
         pRadio_STitle.setText(streamTitle.c_str());
         pRadio_Artist.setText("%s", streamArtist.c_str());
@@ -113,7 +113,7 @@ void showStreamTitle()
     else
     {
         pClock_Title.setText("");
-        
+
         pRadio_STitle.setText("");
         pRadio_Title.setText("");
     }
