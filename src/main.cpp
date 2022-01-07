@@ -180,9 +180,6 @@ void setup()
 void loop() 
 {
     static unsigned long prevMillis10S = millis();
-    static int oldSeconds = -1;
-    static int oldMinutes = -1;
-    static int oldDay = -1;
 
 
     ArduinoOTA.handle();
@@ -195,44 +192,8 @@ void loop()
         UpdateTime(&tmTime);
     }
 
-    mp3loop();
+//    mp3loop();
 
-    if (oldSeconds != tmTime.tm_sec)
-    {
-        if (ClockSettings.bFlashColon)
-        {
-            if (tmTime.tm_sec % 2)
-            {
-                pClock_Colon.setText(":");
-            }
-            else
-            {
-                pClock_Colon.setText(" ");
-            }
-        }
-        else
-        pClock_Colon.setText(":");
-
-        oldSeconds = tmTime.tm_sec;
-    }
-
-    mp3loop();
-
-    if (oldMinutes != tmTime.tm_min)
-    {
-        displayTime();
-        oldMinutes = tmTime.tm_min;
-    }
-
-    mp3loop();
-
-    if (oldDay != tmTime.tm_mday)
-    {
-        oldDay = tmTime.tm_mday;
-        displayDate();
-    }
-
-    mp3loop();
 
     vTaskDelay(1);
 

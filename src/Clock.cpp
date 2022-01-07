@@ -557,6 +557,42 @@ void UpdateTime(tmClock * tmTime)
 
   if(tmTime->bDstValid)
     tmTime->tm_isdst = IsDst(tmTime);
+
+
+    static int oldSeconds = -1;
+    static int oldMinutes = -1;
+    static int oldDay = -1;
+
+    if (oldSeconds != tmTime->tm_sec)
+    {
+        if (ClockSettings.bFlashColon)
+        {
+            if (tmTime->tm_sec % 2)
+            {
+                pClock_Colon.setText(":");
+            }
+            else
+            {
+                pClock_Colon.setText(" ");
+            }
+        }
+        else
+        pClock_Colon.setText(":");
+
+        oldSeconds = tmTime->tm_sec;
+    }
+
+    if (oldMinutes != tmTime->tm_min)
+    {
+        displayTime();
+        oldMinutes = tmTime->tm_min;
+    }
+
+    if (oldDay != tmTime->tm_mday)
+    {
+        oldDay = tmTime->tm_mday;
+        displayDate();
+    }
 }
 
 
