@@ -183,6 +183,7 @@ void loop()
 
 
     ArduinoOTA.handle();
+    
     mp3loop();
 
     // Wait for alarm tick (set to 1hz. in setup()).  Keep looping until we get the signal.
@@ -191,9 +192,6 @@ void loop()
         // Update time.
         UpdateTime(&tmTime);
     }
-
-//    mp3loop();
-
 
     vTaskDelay(1);
 
