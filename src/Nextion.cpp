@@ -3,6 +3,8 @@
 #include "Nextion.h"
 #include "mp3player.h"
 
+#include "Clock.h"
+
 #define nexSerial   Serial2
 
 #define NEX_RET_INVALID_CMD                 (0x00)
@@ -27,77 +29,14 @@
 #define NEX_EVENT_POP   (0x00)  
 
 
-NexPage pageStartup = NexPage(0, 0, "Startup");
-NexPage pageClock   = NexPage(3, 0, "Clock");
-NexPage pageSetup   = NexPage(4, 0, "Setup");
-NexPage pageAlarm   = NexPage(5, 0, "Alarm");
-NexPage pageUpload  = NexPage(6, 0, "Upload");
-NexPage pageRadio   = NexPage(7, 0, "Radio");
+NexPage pageAlarm    = NexPage(5, 0, "Alarm");
 
-// Page 0 - Startup
-NexObject pStartup_Status1 = NexObject(&pageStartup, 1, "Status1");
-NexObject pStartup_Status2 = NexObject(&pageStartup, 2, "Status2");
-NexObject pStartup_Status3 = NexObject(&pageStartup, 4, "Status3");
-NexObject pStartup_Status4 = NexObject(&pageStartup, 5, "Status4");
-NexObject pStartup_Spinner = NexObject(&pageStartup, 3, "Spinner");
-
-// Page 1 - Clock
-NexObject pClock_AM     = NexObject(&pageClock,  1, "AM");
-NexObject pClock_PM     = NexObject(&pageClock,  2, "PM");
-NexObject pClock_THour  = NexObject(&pageClock,  3, "THour");
-NexObject pClock_Hour   = NexObject(&pageClock,  4, "Hour");
-NexObject pClock_TMin   = NexObject(&pageClock,  5, "TMin");
-NexObject pClock_Min    = NexObject(&pageClock,  6, "Min");
-NexObject pClock_Colon  = NexObject(&pageClock,  7, "Colon");
-NexObject pClock_Date   = NexObject(&pageClock,  8, "Date");
-NexObject pClock_bSetup = NexObject(&pageClock, 11, "bSetup");
-NexObject pClock_bRadio = NexObject(&pageClock, 13, "bRadio");
-NexObject pClock_Title  = NexObject(&pageClock, 15, "Title");
-
-// Page 2 - Setup
-NexObject pSetup_qFlashColon = NexObject(&pageSetup,  1, "qFlashColon");
-NexObject pSetup_q24Hour     = NexObject(&pageSetup,  3, "q24Hour");
-NexObject pSetup_qMetaData   = NexObject(&pageSetup,  8, "qMetaData");
-
-
-// Page 4 - Upload
-NexObject pUpload_Message  = NexObject(&pageUpload, 1, "t0");
-NexObject pUpload_Status   = NexObject(&pageUpload, 3, "t1");
-NexObject pUpload_Progress = NexObject(&pageUpload, 2, "j0");
-
-
-// Page 5 - Radio
-NexObject pRadio_Artist      = NexObject(&pageRadio,  6, "tArtist");
-NexObject pRadio_StationName = NexObject(&pageRadio,  7, "tStation");
-NexObject pRadio_Play        = NexObject(&pageRadio,  8, "bPlay");
-NexObject pRadio_QUsage      = NexObject(&pageRadio,  9, "tQUsage");
-NexObject pRadio_VolDisplay  = NexObject(&pageRadio, 10, "nVolume");
-NexObject pRadio_Time        = NexObject(&pageRadio, 14, "tTime");
-NexObject pRadio_STitle      = NexObject(&pageRadio, 15, "gTitle");
-NexObject pRadio_Title       = NexObject(&pageRadio, 16, "tTitle");
-
-NexObject pRadio_VolDn = NexObject(&pageRadio, 1, "bVolDn");
-NexObject pRadio_VolUp = NexObject(&pageRadio, 2, "bVolUp");
-NexObject pRadio_StaDn = NexObject(&pageRadio, 3, "bStaDn");
-NexObject pRadio_StaUp = NexObject(&pageRadio, 4, "bStaUp");
 
 TaskHandle_t NexClockLoopTaskHandle;
 
 
-
-NexObject *nex_listen_list[] =
-{
-  &pRadio_Play,
-  &pRadio_VolDn,
-  &pRadio_VolUp,
-  &pRadio_StaDn,
-  &pRadio_StaUp,
-  &pClock_bRadio,
-  &pSetup_qFlashColon,
-  &pSetup_q24Hour,
-  &pSetup_qMetaData,
-  NULL
-};
+std::vector<NexPage*> nexPages;
+std::vector<NexObject*> nexListen;
 
 uint8_t currentPage = 0xFF;
 
@@ -125,7 +64,7 @@ void NexClockLoopTask(void *parameter)
                     __buffer[i] = 0x00;
 
                     if (0xFF == __buffer[4] && 0xFF == __buffer[5] && 0xFF == __buffer[6])
-                        NexObject::iterate(nex_listen_list, __buffer[1], __buffer[2], (int32_t)__buffer[3]);
+                        NexObject::iterate(&nexListen, __buffer[1], __buffer[2], (int32_t)__buffer[3]);
                 }
 
             case NEX_RET_CURRENT_PAGE_ID_HEAD:  // sendme - current page being displayed
@@ -465,30 +404,29 @@ void NexObject::pop(void)
 }
 
 
-void NexObject::iterate(NexObject **list, uint8_t pid, uint8_t cid, int32_t event)
+void NexObject::iterate(std::vector<NexObject*>* nexList, uint8_t pid, uint8_t cid, int32_t event)
 {
-    NexObject *e = NULL;
-    uint16_t i = 0;
-
-    if (NULL == list)
+    if (nexList->empty())
     {
+        log_w("nexList is empty");
         return;
     }
-    
-    for(i = 0; (e = list[i]) != NULL; i++)
+
+    for (std::vector<NexObject*>::iterator it = nexList->begin(); it != nexListen.end(); ++it)
     {
-        if (e->getObjPid() == pid && e->getObjCid() == cid)
+        NexObject* pNexObject = *it;
+
+        log_w("pNexObject=0x%08X", pNexObject);
+        log_w("iterate checking '%s'", pNexObject->getObjName());
+
+        if (pNexObject->getObjPid() == pid && pNexObject->getObjCid() == cid)
         {
-            e->printObjInfo();
-            if (NEX_EVENT_PUSH == event)
-            {
-                e->push();
-            }
-            else if (NEX_EVENT_POP == event)
-            {
-                e->pop();
-            }
-            
+            pNexObject->printObjInfo();
+            if (event == NEX_EVENT_PUSH)
+                pNexObject->push();
+            else
+                pNexObject->pop();
+
             break;
         }
     }

@@ -2,8 +2,9 @@
 #include <WiFiUdp.h>
 #include <WiFi.h>
 
-#include "Clock.h"
 #include "Nextion.h"
+#include "NexClock2.h"
+#include "Clock.h"
 #include "settings.h"
 #include "mp3player.h"
 
@@ -36,6 +37,20 @@ const char* chMonth[] =
     "Nov",
     "Dec"
 };
+
+NexPage pageClock    = NexPage(3, 0, "Clock");
+
+NexObject pClock_AM     = NexObject(&pageClock,  1, "AM");
+NexObject pClock_PM     = NexObject(&pageClock,  2, "PM");
+NexObject pClock_THour  = NexObject(&pageClock,  3, "THour");
+NexObject pClock_Hour   = NexObject(&pageClock,  4, "Hour");
+NexObject pClock_TMin   = NexObject(&pageClock,  5, "TMin");
+NexObject pClock_Min    = NexObject(&pageClock,  6, "Min");
+NexObject pClock_Colon  = NexObject(&pageClock,  7, "Colon");
+NexObject pClock_Date   = NexObject(&pageClock,  8, "Date");
+NexObject pClock_bSetup = NexObject(&pageClock, 11, "bSetup");
+NexObject pClock_bRadio = NexObject(&pageClock, 13, "bRadio");
+NexObject pClock_Title  = NexObject(&pageClock, 15, "Title");
 
 
 String ntpServer = "time.nist.gov";
@@ -605,6 +620,12 @@ uint8_t startNTP()
 bool startClock()
 {
     log_w("Starting clock");
+
+    nexPages.push_back(&pageClock);
+    nexListen.push_back(&pClock_bRadio);
+
+    pClock_bRadio.attachPush(pClock_BRaduiPushCallback);
+
     if (!startNTP())
     {
         log_w("Failed to start NTP");
@@ -645,8 +666,6 @@ bool startClock()
         pStartup_Spinner.setValue(pos);
     }
     sendCommand("vis z0,0");
-
-    pClock_bRadio.attachPush(pClock_BRaduiPushCallback);
 
     return true;
 }

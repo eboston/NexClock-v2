@@ -4,14 +4,19 @@
 
 #include <vector>
 
+#include "Nextion.h"
 #include "settings.h"
 #include "FSUtils.h"
-#include "Nextion.h"
 #include "mp3player.h"
 #include "Clock.h"
 
 #define CONFIG_FILE     "/conf"
 #define STATIONS_FILE   "/stations"
+
+NexPage pageSetup    = NexPage(4, 0, "Setup");
+NexObject pSetup_qFlashColon = NexObject(&pageSetup,  1, "qFlashColon");
+NexObject pSetup_q24Hour     = NexObject(&pageSetup,  3, "q24Hour");
+NexObject pSetup_qMetaData   = NexObject(&pageSetup,  8, "qMetaData");
 
 bool saveSettings = false;
 
@@ -281,7 +286,9 @@ bool InitSetup()
     pSetup_q24Hour.attachPush(pSetup_q24Hour_PushCallback);
     pSetup_qMetaData.attachPush(pSetup_qMetaData_PushCallback);
 
-
+    nexListen.push_back(&pSetup_qFlashColon);
+    nexListen.push_back(&pSetup_q24Hour);
+    nexListen.push_back(&pSetup_qMetaData);
 
     return true;
 }

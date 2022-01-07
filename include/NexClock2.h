@@ -5,6 +5,7 @@
 void claimSPI(const char* p);
 void releaseSPI();
 
-
+extern NexObject pStartup_Status3;
+extern NexObject pStartup_Spinner;
 
 #endif  // __NEXCLOCK2_H__

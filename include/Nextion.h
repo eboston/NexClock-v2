@@ -85,7 +85,10 @@ public: /* methods */
     uint8_t getObjCid(void);
     const char *getObjName(void);    
     const char* getPageName(void);
+
+    static void iterate(std::vector<NexObject*> *nexList, uint8_t pid, uint8_t cid, int32_t event);
     static void iterate(NexObject **list, uint8_t pid, uint8_t cid, int32_t event);
+
     void attachPush(NexObjectEventCb push, void *ptr = NULL);
     void detachPush(void);
     void attachPop(NexObjectEventCb pop, void *ptr = NULL);
@@ -115,8 +118,11 @@ protected:
     bool setAttrNumber(const char* attr, uint32_t number);
 };
 
+extern std::vector<NexPage*> nexPages;
+extern std::vector<NexObject*> nexListen;
 
 
+/*
 extern NexPage      pageStartup;
 extern NexPage      pageClock;
 extern NexPage      pageSetup;
@@ -165,5 +171,21 @@ extern NexObject    pRadio_Time;
 extern NexObject    pRadio_VolDisplay;
 extern NexObject    pRadio_state;
 extern NexObject    pRadio_vTitle;
+
+extern NexObject pStations_ID1;
+extern NexObject pStations_ID2;
+extern NexObject pStations_ID3;
+extern NexObject pStations_ID4;
+extern NexObject pStations_ID5;
+extern NexObject pStations_ID6;
+extern NexObject pStations_Sta1;
+extern NexObject pStations_Sta2;
+extern NexObject pStations_Sta3;
+extern NexObject pStations_Sta4;
+extern NexObject pStations_Sta5;
+extern NexObject pStations_Sta6;
+extern NexObject pStations_Prev;
+extern NexObject pStations_Next;
+*/
 
 #endif  // __NEXTION_H__

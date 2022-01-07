@@ -4,13 +4,27 @@
 #include <LITTLEFS.h>
 #include <esp_task_wdt.h>
 
+#include "Nextion.h"
 #include "NexClock2.h"
 #include "mp3player.h"
 #include "FSUtils.h"
 #include "WiFiUtils.h"
-#include "Nextion.h"
 #include "settings.h"
 #include "Clock.h"
+#include "Stations.h"
+
+NexPage pageStartup  = NexPage(0, 0, "Startup");
+
+NexObject pStartup_Status1 = NexObject(&pageStartup, 1, "Status1");
+NexObject pStartup_Status2 = NexObject(&pageStartup, 2, "Status2");
+NexObject pStartup_Status3 = NexObject(&pageStartup, 4, "Status3");
+NexObject pStartup_Status4 = NexObject(&pageStartup, 5, "Status4");
+NexObject pStartup_Spinner = NexObject(&pageStartup, 3, "Spinner");
+
+NexPage pageUpload   = NexPage(6, 0, "Upload");
+NexObject pUpload_Message  = NexObject(&pageUpload, 1, "t0");
+NexObject pUpload_Status   = NexObject(&pageUpload, 3, "t1");
+NexObject pUpload_Progress = NexObject(&pageUpload, 2, "j0");
 
 
 void setup() 
@@ -41,6 +55,8 @@ void setup()
     pStartup_Status4.setText("");
 
     pageStartup.show();
+
+    StationsInit();
 
     ////////////////////////////////////////////////////////
     // Start Filesystem and read settings
@@ -183,7 +199,7 @@ void loop()
 
 
     ArduinoOTA.handle();
-    
+
     mp3loop();
 
     // Wait for alarm tick (set to 1hz. in setup()).  Keep looping until we get the signal.

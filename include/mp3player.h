@@ -12,4 +12,12 @@ void showStreamTitle();
 
 extern TaskHandle_t      xplaytask ;                            // Task handle for playtask
 
+extern NexPage pageRadio;
+extern NexObject pRadio_Time;
+extern NexObject pRadio_Title;
+extern NexObject pRadio_STitle;
+extern NexObject pRadio_Artist;
+extern NexObject pRadio_StationName;    
+
+
 #endif  // __MP3PLAYER_H__

@@ -28,6 +28,10 @@ extern struct tmClock  tmTime;
 extern const char* chDaysOfWeek[];
 extern const char* chMonth[];
 
+extern NexPage pageClock;
+extern NexObject pClock_bRadio;
+extern NexObject pClock_Title;
+
 extern volatile SemaphoreHandle_t  timerLoopSemaphore;
 
 bool startClock();

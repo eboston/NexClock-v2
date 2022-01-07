@@ -4,11 +4,12 @@
 #include <WiFi.h>
 #include <esp_task_wdt.h>
 
+#include "Nextion.h"
 #include "NexClock2.h"
 #include "mp3player.h"
 #include "Utils.h"
-#include "Nextion.h"
 #include "settings.h"
+#include "Clock.h"
 
 
 // Wiring of VS1053 board (SPI connected in a standard way) on ESP32 only
@@ -24,6 +25,27 @@
 // Size of metaline buffer
 #define METASIZ 1024
 
+NexPage pageRadio    = NexPage(7, 0, "Radio");
+NexObject pRadio_Artist      = NexObject(&pageRadio,  6, "tArtist");
+NexObject pRadio_StationName = NexObject(&pageRadio,  7, "tStation");
+NexObject pRadio_Play        = NexObject(&pageRadio,  8, "bPlay");
+NexObject pRadio_QUsage      = NexObject(&pageRadio,  9, "tQUsage");
+NexObject pRadio_VolDisplay  = NexObject(&pageRadio, 10, "nVolume");
+NexObject pRadio_Time        = NexObject(&pageRadio, 14, "tTime");
+NexObject pRadio_STitle      = NexObject(&pageRadio, 15, "gTitle");
+NexObject pRadio_Title       = NexObject(&pageRadio, 16, "tTitle");
+NexObject pRadio_VolDn       = NexObject(&pageRadio, 1, "bVolDn");
+NexObject pRadio_VolUp       = NexObject(&pageRadio, 2, "bVolUp");
+NexObject pRadio_StaDn       = NexObject(&pageRadio, 3, "bStaDn");
+NexObject pRadio_StaUp       = NexObject(&pageRadio, 4, "bStaUp");
+
+void pRadio_PlayPushCallback(void *ptr);
+void pRadio_VolDnPushCallback(void *ptr);
+void pRadio_VolUpPushCallback(void *ptr);
+void pRadio_StaDnPushCallback(void *ptr);
+void pRadio_StaUpPushCallback(void *ptr);
+
+
 enum datamode_t 
 { 
     INIT           = 0x0001, 
@@ -33,12 +55,6 @@ enum datamode_t
     STOPREQD       = 0x0010, 
     STOPPED        = 0x0020
 } ;
-
-void pRadio_PlayPushCallback(void *ptr);
-void pRadio_VolDnPushCallback(void *ptr);
-void pRadio_VolUpPushCallback(void *ptr);
-void pRadio_StaDnPushCallback(void *ptr);
-void pRadio_StaUpPushCallback(void *ptr);
 
 
 // MP3 decoder
@@ -242,6 +258,14 @@ void playtask(void * parameter)
 //**************************************************************************************************
 void mp3Start()
 {
+    nexPages.push_back(&pageRadio);
+
+    nexListen.push_back(&pRadio_Play);
+    nexListen.push_back(&pRadio_VolDn);
+    nexListen.push_back(&pRadio_VolUp);
+    nexListen.push_back(&pRadio_StaDn);
+    nexListen.push_back(&pRadio_StaUp);
+
     pRadio_Play.attachPush(pRadio_PlayPushCallback);
     pRadio_VolDn.attachPush(pRadio_VolDnPushCallback);
     pRadio_VolUp.attachPush(pRadio_VolUpPushCallback);
