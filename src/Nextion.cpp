@@ -416,9 +416,6 @@ void NexObject::iterate(std::vector<NexObject*>* nexList, uint8_t pid, uint8_t c
     {
         NexObject* pNexObject = *it;
 
-        log_w("pNexObject=0x%08X", pNexObject);
-        log_w("iterate checking '%s'", pNexObject->getObjName());
-
         if (pNexObject->getObjPid() == pid && pNexObject->getObjCid() == cid)
         {
             pNexObject->printObjInfo();
