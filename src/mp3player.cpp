@@ -25,7 +25,12 @@
 // Size of metaline buffer
 #define METASIZ 1024
 
-NexPage pageRadio    = NexPage(7, 0, "Radio");
+
+
+void RadioActivated(void* ptr);
+
+NexPage pageRadio = NexPage(7, 0, "Radio", RadioActivated);
+
 NexObject pRadio_Artist      = NexObject(&pageRadio,  6, "tArtist");
 NexObject pRadio_StationName = NexObject(&pageRadio,  7, "tStation");
 NexObject pRadio_Play        = NexObject(&pageRadio,  8, "bPlay");
@@ -127,8 +132,6 @@ void showStreamTitle()
         pRadio_STitle.setText(streamTitle.c_str());
         pRadio_Artist.setText("%s", streamArtist.c_str());
 
-log_w("currentPage=%d", currentPage);
-log_w("pageRadio.getObjPid()=%d", pageRadio.getObjPid());
 
         if (currentPage == pageRadio.getObjPid())
         {
@@ -1010,3 +1013,9 @@ void pRadio_StaUpPushCallback(void *ptr)
     playRadio(true, false);
 }
 
+void RadioActivated(void* ptr)
+{
+    log_w("Radio page activated");
+                                
+    showStreamTitle();
+}

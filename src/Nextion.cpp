@@ -82,8 +82,7 @@ void NexClockLoopTask(void *parameter)
                             currentPage = newPage;
                             log_w("Current page is %d", currentPage);
 
-                            if (currentPage == pageRadio.getObjPid())
-                                showStreamTitle();
+                            NexPage::iterate(&nexPages, currentPage);
                         }
                     }
                 }
@@ -323,9 +322,11 @@ bool NexClockInit(int8_t rxPin, int8_t txPin)
 }
 
 
-NexPage::NexPage(uint8_t pid, uint8_t cid, const char *name)
+NexPage::NexPage(uint8_t pid, uint8_t cid, const char *name, NexObjectEventCb page_cb, void *ptr)
     : __pid(pid)
     , __name(name)
+    , __page_cb(page_cb)
+    , __cb_ptr(ptr)
 {
 }
 
@@ -339,6 +340,29 @@ bool NexPage::show(void)
     sendCommand("page %s", name);
 
     return recvRetCommandFinished();
+}
+
+
+void NexPage::iterate(std::vector<NexPage*> *Pages, uint8_t pid)
+{
+    if (Pages->empty())
+    {
+        log_w("Pages is empty");
+        return;
+    }
+
+    for (std::vector<NexPage*>::iterator it = nexPages.begin(); it != nexPages.end(); ++it)
+    {
+        NexPage* pNexPage = *it;
+
+        if (pNexPage->getObjPid() == pid)
+        {
+            if (pNexPage->__page_cb)
+                pNexPage->__page_cb(pNexPage->__cb_ptr);
+
+            return;
+        }
+    }
 }
 
 

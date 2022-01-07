@@ -621,7 +621,6 @@ bool startClock()
 {
     log_w("Starting clock");
 
-    nexPages.push_back(&pageClock);
     nexListen.push_back(&pClock_bRadio);
 
     pClock_bRadio.attachPush(pClock_BRaduiPushCallback);

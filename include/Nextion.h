@@ -14,21 +14,26 @@ extern TaskHandle_t NexClockLoopTaskHandle;
 
 
 typedef void (*NexObjectEventCb)(void *ptr);
+typedef void (*NexPageEventCb)(void *ptr);
 
 
 class NexPage
 {
 public:
-    NexPage(uint8_t pid, uint8_t cid, const char *name);
+    NexPage(uint8_t pid, uint8_t cid, const char *name, NexObjectEventCb push = NULL, void *ptr = NULL);
     
     bool show(void);
 
     uint8_t getObjPid() { return __pid; }
     const char* getObjName() { return __name; }
 
+    static void iterate(std::vector<NexPage*> *Pages, uint8_t pid);
+
 private:
     uint8_t __pid;
     const char* __name;
+    NexPageEventCb __page_cb;
+    void* __cb_ptr;
 };
 
 
@@ -87,7 +92,6 @@ public: /* methods */
     const char* getPageName(void);
 
     static void iterate(std::vector<NexObject*> *nexList, uint8_t pid, uint8_t cid, int32_t event);
-    static void iterate(NexObject **list, uint8_t pid, uint8_t cid, int32_t event);
 
     void attachPush(NexObjectEventCb push, void *ptr = NULL);
     void detachPush(void);
