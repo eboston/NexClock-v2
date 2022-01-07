@@ -137,13 +137,11 @@ void showStreamTitle()
         {
             if (streamTitle.length() < 30)
             {
-log_w("show static title");
                 sendCommand("vis gTitle,0");
                 sendCommand("vis tTitle,1");
             }
             else
             {
-log_w("show scrolling title");
                 sendCommand("vis gTitle,1");
                 sendCommand("vis tTitle,0");
             }
@@ -1015,7 +1013,5 @@ void pRadio_StaUpPushCallback(void *ptr)
 
 void RadioActivated(void* ptr)
 {
-    log_w("Radio page activated");
-                                
     showStreamTitle();
 }

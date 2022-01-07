@@ -80,8 +80,6 @@ void NexClockLoopTask(void *parameter)
                         if (currentPage != newPage)
                         {
                             currentPage = newPage;
-                            log_w("Current page is %d", currentPage);
-
                             NexPage::iterate(&nexPages, currentPage);
                         }
                     }
